@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#define DIM 100
 
+#define FILTER " / . ( ) * + - = \n #  \\ ' , ! @"
 struct Words{
   int len;
   char *word;
@@ -21,7 +21,6 @@ void star(wordsptr head);
 
 FILE *fp; //puntatore al file
 wordsptr head = NULL;
-char file_str[DIM];
 long int word_count = 0;
 int max_len = 0;
 
@@ -51,22 +50,56 @@ int main(int argc, char **argv){
 
 
 
-
 //strip
 
 void read_file(FILE *x){
-  while(fscanf(x, "%[a-zA-Z]%*[^\"]%*[^a-zA-Z]", file_str)!=EOF){
+  char *assets = NULL;
+  int size = 0;
+  char *token = NULL;
+  char *tmp = NULL;
+  fseek(x,0L,SEEK_END);//Returns the file size
+  size = ftell(x);
+  rewind(x);
+  assets = malloc((sizeof(char)) * (size));
+  fread(assets, sizeof(char), size, x);
+  tmp = strtok(assets,FILTER);
+  //token = malloc(strlen(tmp) * (sizeof(char)));
+
+  //free(token);
+  //strcpy(token,tmp);
+  //printf("%s\n",token);
+  while (tmp != NULL) {
+    token = malloc(strlen(tmp) * (sizeof(char))+1);
+    strcpy(token,tmp);
+    for(int i = 0; token[i] != '\0'; i++){
+      token[i] = tolower(token[i]);
+    }
+    insert_node(&head, token);
+    word_count++;
+    tmp = strtok(NULL,FILTER);
+
+
+    free(token);
+  }
+  free(assets);
+
+
+
+
+/*  while(sscanf(assets, "%[a-zA-Z]%*[^a-zA-Z]", file_str) > 0){
+    printf("%s\n",file_str );
+    printf("%ld\n", strlen(file_str));
     for(int i = 0; file_str[i] != '\0'; i++){
       file_str[i] = tolower(file_str[i]);
     }
     word_count++;
     insert_node(&head, file_str);
-  }
+  }*/
 
 }
 
 
-void insert_node(wordsptr *head, char file_str[DIM]){
+void insert_node(wordsptr *head, char file_str[]){
   wordsptr new = malloc(sizeof(words));
   new->len = strlen(file_str);
   new->count = 1;
@@ -108,6 +141,9 @@ void len_calc(wordsptr head){
   double freq = 0;
   wordsptr tmp = NULL;
   printf("\tLunghezza\tFrequenza(%%)\n");
+  if(head == NULL){
+      return;
+  }
   for (i = 0; i < max_len; i ++){
     counter = 0;
     tmp = head;
@@ -128,9 +164,12 @@ void len_calc(wordsptr head){
 
 
 void star(wordsptr head){
+  if(head == NULL){
+    return;
+}
   wordsptr tmp = head;
   wordsptr tmp2 = tmp->next;
-  while(tmp2->next!= NULL){
+  while(tmp2!= NULL){
     while(strcmp(tmp->word, tmp2->word)==0){
       tmp->count++;
       wordsptr tmp3 = tmp2;
@@ -152,7 +191,5 @@ void star(wordsptr head){
   }
   free(tmp->word);
   free(tmp);
-  free(tmp2->word);
-  free(tmp2);
 
 }
