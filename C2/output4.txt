@@ -1,0 +1,18 @@
+ Lunghezza Frequenza(%)
+         2 20.00%
+         3 30.00%
+         4 20.00%
+         6 20.00%
+        10 10.00%
+
+
+    Parola Frequenza
+       and *
+    beyond *
+      curb *
+        go *
+impossible *
+      kick *
+    reason *
+       the **
+        to *

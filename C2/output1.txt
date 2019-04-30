@@ -1,0 +1,6 @@
+Lunghezza Frequenza(%)
+0 100.00%
+
+
+Parola Frequenza
+ *

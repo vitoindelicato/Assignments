@@ -1,0 +1,4 @@
+IN MAGAZZINO VI SONO:
+
+10	Prodotti diversi.
+2	Prodotti sotto la soglia di riordino.

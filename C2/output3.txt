@@ -1,0 +1,6 @@
+Lunghezza Frequenza(%)
+       8 100.00%
+
+
+  Parola Frequenza
+10111212 *
