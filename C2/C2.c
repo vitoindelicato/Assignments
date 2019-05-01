@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#define FILTER " / . ( ) * + - = \n #  \\ ' ; , ? ! @ \" "
 
-#define FILTER " / . ( ) * + - = \n #  \\ ' , ! @"
 struct Words{
   int len;
   char *word;
@@ -14,9 +14,10 @@ typedef struct Words words;
 typedef words *wordsptr;
 
 void read_file (FILE *x);
-void insert_node(wordsptr *head, char file_str[]);
+void insert_node(wordsptr *head, char *token);
 void len_calc(wordsptr head);
 void star(wordsptr head);
+void print_list(wordsptr head);
 
 
 FILE *fp; //puntatore al file
@@ -40,9 +41,10 @@ int main(int argc, char **argv){
   }
 
   read_file(fp);
-  len_calc(head);
-  star(head);
-  fclose(fp);
+  //len_calc(head);
+  //star(head);
+  print_list(head);
+//  fclose(fp);
 
 
  return 0;
@@ -53,61 +55,58 @@ int main(int argc, char **argv){
 //strip
 
 void read_file(FILE *x){
-  char *assets = NULL;
   int size = 0;
-  char *token = NULL;
-  char *tmp = NULL;
+  char *assets = NULL;
   fseek(x,0L,SEEK_END);//Returns the file size
   size = ftell(x);
   rewind(x);
-  assets = malloc((sizeof(char)) * (size));
+  assets = malloc(size+1);
   fread(assets, sizeof(char), size, x);
-  tmp = strtok(assets,FILTER);
-  //token = malloc(strlen(tmp) * (sizeof(char)));
+  assets[size] = '\0';
+  fclose(x);
+  char *token = strtok(assets,FILTER);
 
-  //free(token);
-  //strcpy(token,tmp);
-  //printf("%s\n",token);
-  while (tmp != NULL) {
-    token = malloc(strlen(tmp) * (sizeof(char))+1);
-    strcpy(token,tmp);
+
+  while (token!= NULL){
     for(int i = 0; token[i] != '\0'; i++){
       token[i] = tolower(token[i]);
     }
     insert_node(&head, token);
     word_count++;
-    tmp = strtok(NULL,FILTER);
-
-
-    free(token);
+    token = strtok(NULL,FILTER);
+    //
+    if(token == NULL){
+      return;
+    }
   }
   free(assets);
-
-
-
-
-/*  while(sscanf(assets, "%[a-zA-Z]%*[^a-zA-Z]", file_str) > 0){
-    printf("%s\n",file_str );
-    printf("%ld\n", strlen(file_str));
-    for(int i = 0; file_str[i] != '\0'; i++){
-      file_str[i] = tolower(file_str[i]);
-    }
-    word_count++;
-    insert_node(&head, file_str);
-  }*/
-
+  free(token);
+//here
 }
 
+//all this goes
+/*  while(sscanf(assets, "%[a-zA-Z]%*[^a-zA-Z]", token) > 0){
+    printf("%s\n",token );
+    printf("%ld\n", strlen(token));
+    for(int i = 0; token[i] != '\0'; i++){
+      token[i] = tolower(token[i]);
+    }
+    word_count++;
+    insert_node(&head, token);
+  }*/
 
-void insert_node(wordsptr *head, char file_str[]){
+
+
+
+void insert_node(wordsptr *head, char token[]){
   wordsptr new = malloc(sizeof(words));
-  new->len = strlen(file_str);
+  new->len = strlen(token);
   new->count = 1;
   if(new->len > max_len){
     max_len = new->len;
   }
-  new->word = malloc((strlen(file_str))*sizeof(char)+1);
-  strcpy(new->word, file_str);
+  new->word = malloc((strlen(token))*sizeof(char)+1);
+  strcpy(new->word, token);
   new->next = NULL;
 
   wordsptr prev = NULL;
@@ -132,7 +131,14 @@ void insert_node(wordsptr *head, char file_str[]){
 
 
 
+void print_list(wordsptr head){
+  wordsptr tmp = head;
+  while(tmp != NULL){
+    printf("%s\t\t\t\n", tmp->word);
+    tmp = tmp->next;
+  }
 
+}
 
 
 void len_calc(wordsptr head){
@@ -164,9 +170,9 @@ void len_calc(wordsptr head){
 
 
 void star(wordsptr head){
-  if(head == NULL){
+  /*if(head == NULL){
     return;
-}
+}*/
   wordsptr tmp = head;
   wordsptr tmp2 = tmp->next;
   while(tmp2!= NULL){
@@ -185,9 +191,9 @@ void star(wordsptr head){
     printf("\n");
     wordsptr tmp3 = tmp;
     tmp = tmp->next;
+    tmp2 = tmp2->next;
     free(tmp3->word);
     free(tmp3);
-    tmp2 = tmp2->next;
   }
   free(tmp->word);
   free(tmp);
