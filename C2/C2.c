@@ -18,11 +18,12 @@ typedef words *wordsptr;
 
 void read_file (FILE *x);
 void insert_node(wordsptr *head, char *token);
-void len_calc(wordsptr head);
-void print_star(wordsptr head);
+void len_calc(wordsptr head, FILE *fp1);
+void print_star(wordsptr head, FILE *fp1);
 
 
 FILE *fp; //puntatore al file
+FILE *fp1;
 wordsptr head = NULL;
 long int word_count = 0;
 int max_len = 0;
@@ -36,15 +37,19 @@ int main(int argc, char **argv){
   }
 
   fp = fopen(argv[1], "r");
+  fp1 = fopen("c2_out", "w");
 
   if(fp == NULL){
     printf("Impossibile aprire il file %s\n", argv[1]);
     return 0;
   }
-
+  if(fp1 == NULL){
+    printf("Impossibile aprire il file sul quale devo scrivere\n");
+    return 0;
+  }
   read_file(fp);
-  len_calc(head);
-  print_star(head);
+  len_calc(head, fp1);
+  print_star(head, fp1);
 
 
 
@@ -132,10 +137,10 @@ void insert_node(wordsptr *head, char *token){
 
 
 
-void len_calc(wordsptr head){
+void len_calc(wordsptr head, FILE *fp1){
   float freq = 0.0;
   int length[MAX_LEN] = {0};
-  printf("\tLunghezza\tFrequenza(%%)\n");
+  fprintf(fp1, "\tLunghezza\tFrequenza(%%)\n");
 
   while (head != NULL) {
     length[head->len] += head->count;
@@ -143,9 +148,9 @@ void len_calc(wordsptr head){
   }
   for(int i = 0; i < MAX_LEN;i++){
     if(length[i] != 0){
-      printf("\t%9d", i);
+      fprintf(fp1,"\t%9d", i);
       freq =((float)length[i]/(float)word_count)*100;
-      printf("%18.02f%%\n", freq);
+      fprintf(fp1,"%18.02f%%\n", freq);
     }
   }
 }
@@ -154,13 +159,13 @@ void len_calc(wordsptr head){
 
 
 
-void print_star(wordsptr head){
+void print_star(wordsptr head, FILE *file){
   while(head != NULL){
-    printf("%17s  ", head->word);
+    fprintf(fp1, "%17s  ", head->word);
     for(int i = 0; i < head->count; i++){
-      printf("*");
+      fprintf(fp1, "*");
     }
-    printf("\n");
+    fprintf(fp1,"\n");
 
     wordsptr tmp = head;
     head = head->next;
