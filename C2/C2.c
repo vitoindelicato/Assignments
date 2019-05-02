@@ -2,7 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <fcntl.h>
 #define FILTER " / . ( ) * + - = \n #  \\ ' ; , ? ! @ \" "
+#define MAX_LEN 27
 
 struct Words{
   int len;
@@ -16,8 +19,7 @@ typedef words *wordsptr;
 void read_file (FILE *x);
 void insert_node(wordsptr *head, char *token);
 void len_calc(wordsptr head);
-void star(wordsptr head);
-void print_list(wordsptr head);
+void print_star(wordsptr head);
 
 
 FILE *fp; //puntatore al file
@@ -41,10 +43,9 @@ int main(int argc, char **argv){
   }
 
   read_file(fp);
-  //len_calc(head);
-  //star(head);
-  print_list(head);
-//  fclose(fp);
+  len_calc(head);
+  print_star(head);
+
 
 
  return 0;
@@ -52,19 +53,20 @@ int main(int argc, char **argv){
 
 
 
-//strip
+
 
 void read_file(FILE *x){
   int size = 0;
-  char *assets = NULL;
-  fseek(x,0L,SEEK_END);//Returns the file size
+  fseek(x,0,SEEK_END);//Returns the file size
   size = ftell(x);
   rewind(x);
-  assets = malloc(size+1);
+  char assets[size]; //assets originariamente era usato dinamicamente, ma con la funzione fread, anche usando il free su di esso, rimaneva comunque allocato in memoria, usarlo staticamente era unica soluzione possibile per non avere leak
+  //char *assets = malloc(size +1); //per verificare veridicità di quanto detto, basta commentare la riga sopra a questa e decommentare questa
   fread(assets, sizeof(char), size, x);
   assets[size] = '\0';
   fclose(x);
   char *token = strtok(assets,FILTER);
+
 
 
   while (token!= NULL){
@@ -74,38 +76,28 @@ void read_file(FILE *x){
     insert_node(&head, token);
     word_count++;
     token = strtok(NULL,FILTER);
-    //
+
     if(token == NULL){
       return;
     }
   }
-  free(assets);
+  //free(assets); //decommentare anche questa, e girare con valgrind
   free(token);
-//here
+
 }
 
-//all this goes
-/*  while(sscanf(assets, "%[a-zA-Z]%*[^a-zA-Z]", token) > 0){
-    printf("%s\n",token );
-    printf("%ld\n", strlen(token));
-    for(int i = 0; token[i] != '\0'; i++){
-      token[i] = tolower(token[i]);
-    }
-    word_count++;
-    insert_node(&head, token);
-  }*/
 
 
 
 
-void insert_node(wordsptr *head, char token[]){
+void insert_node(wordsptr *head, char *token){
   wordsptr new = malloc(sizeof(words));
   new->len = strlen(token);
   new->count = 1;
   if(new->len > max_len){
     max_len = new->len;
   }
-  new->word = malloc((strlen(token))*sizeof(char)+1);
+  new->word = malloc((strlen(token))*(sizeof(char))+1);
   strcpy(new->word, token);
   new->next = NULL;
 
@@ -114,9 +106,15 @@ void insert_node(wordsptr *head, char token[]){
 
 
   //leggendo le parole da file, si inseriscono già in ordine alfabetico in lista
-  while(curr != NULL && strcmp(new->word, curr->word)>=0){
+  while(curr != NULL && strcmp(new->word, curr->word)>0){
     prev = curr;
     curr = curr->next;
+  }
+  if(curr != NULL && (strcmp(new->word, curr->word)==0)){
+    curr->count++;
+    free(new->word);
+    free(new);
+    return;
   }
   if(prev == NULL){
     new->next = *head;  //faccio puntare il next alla struttura testa aka null
@@ -131,71 +129,42 @@ void insert_node(wordsptr *head, char token[]){
 
 
 
-void print_list(wordsptr head){
-  wordsptr tmp = head;
-  while(tmp != NULL){
-    printf("%s\t\t\t\n", tmp->word);
-    tmp = tmp->next;
-  }
 
-}
 
 
 void len_calc(wordsptr head){
-  int counter = 0;
-  int i = 0;
-  double freq = 0;
-  wordsptr tmp = NULL;
+  float freq = 0.0;
+  int length[MAX_LEN] = {0};
   printf("\tLunghezza\tFrequenza(%%)\n");
-  if(head == NULL){
-      return;
-  }
-  for (i = 0; i < max_len; i ++){
-    counter = 0;
-    tmp = head;
-    while(tmp->next != NULL){
-      if(tmp->len == i+1){
-        counter++;
-      }
-      tmp = tmp->next;
-    }
-    freq = (double)(counter*100)/word_count;
-    printf("\t%9d", i+1);
-    printf("%18.02f%%\n", freq);
 
+  while (head != NULL) {
+    length[head->len] += head->count;
+    head = head->next;
+  }
+  for(int i = 0; i < MAX_LEN;i++){
+    if(length[i] != 0){
+      printf("\t%9d", i);
+      freq =((float)length[i]/(float)word_count)*100;
+      printf("%18.02f%%\n", freq);
+    }
   }
 }
 
 
 
 
-void star(wordsptr head){
-  /*if(head == NULL){
-    return;
-}*/
-  wordsptr tmp = head;
-  wordsptr tmp2 = tmp->next;
-  while(tmp2!= NULL){
-    while(strcmp(tmp->word, tmp2->word)==0){
-      tmp->count++;
-      wordsptr tmp3 = tmp2;
-      tmp2 = tmp2->next;
-      tmp->next = tmp3->next;
-      free(tmp3->word);
-      free(tmp3);
-    }
-    printf("%17s  ", tmp->word);
-    for(int i = 0; i < tmp->count; i++){
+
+void print_star(wordsptr head){
+  while(head != NULL){
+    printf("%17s  ", head->word);
+    for(int i = 0; i < head->count; i++){
       printf("*");
     }
     printf("\n");
-    wordsptr tmp3 = tmp;
-    tmp = tmp->next;
-    tmp2 = tmp2->next;
-    free(tmp3->word);
-    free(tmp3);
-  }
-  free(tmp->word);
-  free(tmp);
 
+    wordsptr tmp = head;
+    head = head->next;
+    free(tmp->word);
+    free(tmp);
+  }
 }
