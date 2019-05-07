@@ -50,6 +50,7 @@ int main(int argc, char **argv){
   read_file(fp);
   len_calc(head, fp1);
   print_star(head, fp1);
+  fclose(fp1);
 
 
 
@@ -65,8 +66,7 @@ void read_file(FILE *x){
   fseek(x,0,SEEK_END);//Returns the file size
   size = ftell(x);
   rewind(x);
-  char assets[size]; //assets originariamente era usato dinamicamente, ma con la funzione fread, anche usando il free su di esso, rimaneva comunque allocato in memoria, usarlo staticamente era unica soluzione possibile per non avere leak
-  //char *assets = malloc(size +1); //per verificare veridicità di quanto detto, basta commentare la riga sopra a questa e decommentare questa
+  char *assets = malloc(size +1); 
   fread(assets, sizeof(char), size, x);
   assets[size] = '\0';
   fclose(x);
@@ -81,12 +81,12 @@ void read_file(FILE *x){
     insert_node(&head, token);
     word_count++;
     token = strtok(NULL,FILTER);
-
     if(token == NULL){
+      free(assets); 
       return;
     }
   }
-  //free(assets); //decommentare anche questa, e girare con valgrind
+  
   free(token);
 
 }
@@ -172,4 +172,5 @@ void print_star(wordsptr head, FILE *file){
     free(tmp->word);
     free(tmp);
   }
+ 
 }
