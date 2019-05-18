@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define DIM 30
+#define MENU 3
 
 
 
@@ -38,6 +39,10 @@ typedef struct gen_lead gen_lead;
 typedef gen_lead* gen_leadptr;
 
 
+
+void podio(int x);
+void best_pilot(int x);
+
 void write_grid(FILE* fp1); //la funzione inserisce in lista i piloti in ordine di partenza
 void insert_node_grid(gridptr *head_grid, char *a, char *b, int c);//questa sarà chiamata all'interno della soprascritta funzione
 char *best_pil(FILE* fp2);
@@ -51,8 +56,12 @@ pos_const returner(gridptr* head_grid, char* pilot);
 gridptr head_grid = NULL;
 gen_leadptr head_gen_lead = NULL;
 
-int main(int argc, char **argv){
 
+
+
+
+int main(int argc, char **argv){
+int choice = 0;
  
  if(argc != 4){
     printf("Errore, inserire 3 argomenti : \"Nome programma\" \"Griglia di partenza\" \"Velocità\" \"Tempi dei piloti\" \n");
@@ -60,33 +69,50 @@ int main(int argc, char **argv){
   }
   FILE* fp1; //griglia di partenza
   FILE* fp2; //topspeed
-  FILE* fp3; // tempi
+  FILE* fp3; //tempi
   FILE* fp4; //file csv da creare
   fp1 = fopen(argv[1], "r");
   fp2 = fopen(argv[2], "r");
   fp3 = fopen(argv[3], "r");
   fp4 = fopen("D2.out", "w");
 
+
+ void (*menu[DIM]) (int) = {podio, best_pilot, exit};
+ while(choice == 0 || choice !=3){
+    printf("Scegli un'opzione:\n\t1)Stampa il podio.\n\t2)Stampa il nome del miglior pilota.\n\t3)Esci dal programma.");
+
+    while(scanf("%d", &choice) != 1 || choice != 1 || choice != 2){
+        printf("Errore! Inserisci un numero valido!");
+        scanf("%*[^\n]%*c");
+    }
+    (*menu[choice-1]) (choice-1);
+ }
+
+
+
+
+
  if (fp1 == NULL || fp2 == NULL || fp3 == NULL){
         printf("Non è stato possibile aprire i file!\n");
         return 0;
     }
- write_grid(fp1);
- //printf("%s", "The best pilot is:\n \t");
- char *name = best_pil(fp2);
- printf("%p\n", name);
- 
 
- //printf("STAMPANDO LISTA GRIGLIA DI PARTENZA\n\t");
- //print_list(head_grid);
+
+
+ write_grid(fp1);
+ printf("%s", "The best pilot is:\n \t");
+ char *name = best_pil(fp2);
+ printf("%s\n", name);
+ free(name);
 
  read_times(fp3);
  print_file(fp4, head_gen_lead);
  
- free(name);
+ 
  fclose(fp1);
  fclose(fp2);
  fclose(fp3);
+ fclose(fp4);
     return 0;
 }
 
@@ -354,8 +380,18 @@ void print_file(FILE* fp4,gen_leadptr head_gen_lead){
       free(tmp->pilot_lead);
       free(tmp);
    }
-   fclose(fp4);
 }
 
 
-//        
+      
+void podio(int x){
+
+
+
+
+}
+void best_pilot(int x){
+
+
+
+}

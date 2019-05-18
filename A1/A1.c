@@ -2,10 +2,10 @@
 #include <limits.h>
 #define DIM 4 //dimensione dell'array
 
-void insert(int choice);
-void visc2(int choice);
-void opposite(int choice);
-void oppositec2(int choice);
+void insert();
+void visc2();
+void opposite();
+void oppositec2();
 void printmenu();
 void display(int a);
 void error();
@@ -30,7 +30,7 @@ int main(){
 }
 
 void display(int a){ //la funzione stampa a video direttamnete il complemento a 2 del numero
-  int mask = 1 << BITS-1; //si crea una maschera per i bit
+  int mask = 1 << (BITS-1); //si crea una maschera per i bit
   for(short i = 1; i <= BITS; ++i){ // for che va da 1 al numero di bits
     putchar(a & mask ? '1' : '0');// se l'unione tra il valore a e la maschera è falsa, ritorna 0 altrimenti 1
     a <<= 1; //si fa scorrere il valore di un bit a destra
@@ -42,7 +42,7 @@ void display(int a){ //la funzione stampa a video direttamnete il complemento a 
 }
 
 
-void insert(int choice){ //inserisce un intero nella variabile x
+void insert(){ //inserisce un intero nella variabile x
   error();
 }
 
