@@ -1,192 +1,156 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define DIM 1000
+#include <ctype.h>
+#define DIM 100 
 
-int stato = 0;
 
-int stato0(char x);
-int stato1(char x);
-int stato2(char x);
-int stato3(char x);
-int stato4(char x);
-int stato5(char x);
-int stato6(char x);
-int stato7(char x);
-int stato8(char x);
-int stato9(char x);
+int stato0(char input, int stato, int* flag_b);
+int stato1(char input, int stato, int* flag_b);
+int stato2(char input, int stato, int* flag_b);
+int stato3(char input, int stato, int* flag_b);
+int stato4(char input, int stato, int* flag_b);
 
 
 
-int sottostr0(char x);
-int sottostr1(char x);
-int sottostr2(char x);
-int sottostr3(char x);
+int sottostr0(char x, int stato);
+int sottostr1(char x, int stato);
+int sottostr2(char x, int stato);
+int sottostr3(char x, int stato);
 
+
+
+
+
+char input[DIM] = {""};
 
 int main(){
- int flag = 0;
- char input [DIM] = "";
- scanf("%s", input);
- int(*array[10])(char) = {stato0, stato1, stato2, stato3, stato4, stato5, stato6, stato7, stato8, stato9}; 
- for(int i = 0; input[i]!='\n'; i++){
-    flag = array[stato] (input[i]);
-    if (flag == 1){
-        break;
+int stato = 0;
+int i = 0;
+int flag_b = 0;
+char c;
+int counter = 0;
+printf("Stringa:\n");
+while(( c = getchar())!= '\n' && counter < 98){
+    input [counter] = c;
+    counter ++;
+}
+input[counter +1] = '\0';
+
+int (*array[10]) (char x, int stato, int* flag_b) = {stato0, stato0, stato0, stato0, stato1, stato2, stato3, stato4, stato4, stato4};
+    while(input[i] != '\0' ){
+      stato = array[stato](input[i], stato, &flag_b);
+        i++;
+        if(stato == -1 || stato > 9){
+            break;
+        }
     }
- }
-    if (flag == 0){
-        puts("Stringa non appartente al linguaggio");
+    if (stato == -1 || stato > 9){
+        printf("stringa non appartenente al linguaggio\n");
     }
-    else{
-        puts("Stringa appartenente al linguaggio");
-        flag = 0;
-        int(*sottostr[4])(char) = {sottostr0, sottostr1, sottostr2,sottostr3}; 
-        for(int i = 0; input[i]!='\n'; i++){
-            flag = sottostr[flag] (input[i]);
-            if (flag == 4){
+    else if (stato == 9 || (stato==8 && flag_b >= 1) || (stato==7 && flag_b >= 2) || (stato==6 && flag_b >= 3)){
+        printf("stringa appartenente al linguaggio\n");
+        int(*sottostr[4])(char x, int stato) = {sottostr0, sottostr1, sottostr2,sottostr3}; 
+        stato = 0;
+        for(int j = 4; input[j]!='\0'; j++){
+            stato = sottostr[stato] (input[j], stato);
+            if (stato >= 3 || stato == -1){
                 break;
             }
         }
-        if(flag != 4){
-            puts("Sottostringa abDD non presente");
+        if(stato != 3){
+            printf("nessuna sottostringa abDD\n");
         }
         else{
-            puts("Sottostringa abDD presente");
+            printf("sottostringa abDD presente\n");
         }
     }
-    return 0;    
-}
-
-
-int stato0(char x){
-    if (x >= 'A' && x <= 'Z'){
-        stato = 1;
+    else{
+        printf("stringa non appartenente al linguaggio\n");
     }
+
+
     return 0;
 }
 
 
-int stato1(char x){
-    if (x >= 'A' && x <= 'Z'){
-        stato = 2;
-    }
-    return 0;
-}
 
-int stato2(char x){
-    if (x >= 'A' && x <= 'Z'){
-        stato = 3;
+
+int stato0(char input, int stato, int* flag_b){
+    if (isupper((int)input)==0){
+        return -1;
     }
-    return 0;
+    
+    return stato+1;
 }
 
 
-int stato3(char x){
-    if (x >= 'A' && x <= 'Z'){
-        stato = 4;
+
+
+int stato1(char input, int stato, int* flag_b){
+    if(input == 'a'){
+        return stato+1;
     }
-    return 0;
+
+    return -1;
 }
 
 
-int stato4(char x){
-    if (x == 'a'){
-        stato = 5;
+
+int stato2(char input, int stato, int* flag_b){
+    if(input == 'b'){
+        return stato +1;
     }
-    else if((x >= 'A' && x <= 'Z')){
-        stato = 1;
+    return -1;
+}
+
+
+int stato3(char input, int stato, int* flag_b){
+    if(input == 'b'){
+        *flag_b += 1;
+        return stato;
+    }
+    else if (input == 'd'){
+        return -1;
     }
     else{
-        stato = 0;
+        return stato +1;
     }
-    return 0;
+ 
 }
 
 
-
-int stato5(char x){
-    if (x == 'b'){
-        stato = 6;
-    }
-    else if((x >= 'A' && x <= 'Z')){
-        stato = 1;
+int stato4(char input, int stato, int* flag_b){
+    if (input == 'd'){
+        return -1;
     }
     else{
-        stato = 0;
+        return stato +1;
     }
-    return 0;
 }
+    
 
 
 
-int stato6(char x){
-    if (x != 'd'){
-        stato = 7;
+int sottostr0(char x, int stato){
+    if(x =='a'){
+        return stato +1;
     }
     else{
-        stato = 0;
+        return -1;
     }
-    return 0;
+
+    
 }
 
 
 
-int stato7(char x){
-    if (x != 'd'){
-        stato = 8;
-    }
-    else{
-        stato = 0;
-    }
-    return 0;
-}
-
-
-
-
-
-
-int stato8(char x){
-    if (x != 'd'){
-        stato = 9;
-    }
-    else{
-        stato = 0;
-    }
-    return 0;
-}
-
-
-int stato9(char x){
-    return 1;
-}
-
-
-
-
-
-
-
-int sottostr0(char x){
-    if(x=='a'){
-        return 1;
-    }
-
-    return 0;
-}
-
-
-
-int sottostr1(char x){
+int sottostr1(char x, int stato){
     if(x == 'b'){
-        return 2;
-    }
-    else if(x == 'a'){
-        return 1;
+        return stato +1;
     }
     else{
-        return 0;
+        return -1;
     }
     
     
@@ -194,32 +158,24 @@ int sottostr1(char x){
 
 
 
-int sottostr2(char x){
+int sottostr2(char x, int stato){
     if(x == 'D'){
-        return 3;
+        return stato + 1;
     }
-    else if(x == 'a'){
-        return 1;
-    }
+    
     else{
-        return 0;
-    }
-    
-    
+        return -1;
+        }
 }
 
 
 
-int sottostr3(char x){
+int sottostr3(char x, int stato){
     if(x == 'D'){
-        return 4;
+        return stato;
     }
-    else if(x == 'a'){
-        return 1;
-    }
+    
     else{
-        return 0;
-    }
-    
-    
+        return -1;
+        }
 }

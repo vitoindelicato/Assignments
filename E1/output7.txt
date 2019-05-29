@@ -1,0 +1,3 @@
+Stringa:
+stringa appartenente al linguaggio
+nessuna sottostringa abDD
